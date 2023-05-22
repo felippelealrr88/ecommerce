@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'felippelealrr88/ecommerce',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => NULL,
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => '645451e7f279adf21f84233576ff2bfefc6162b3',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'felippelealrr88/ecommerce' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => NULL,
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '645451e7f279adf21f84233576ff2bfefc6162b3',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
