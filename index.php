@@ -1,22 +1,25 @@
 <?php 
 
 require_once("vendor/autoload.php");
+use \Slim\Slim;
+use \Hcode\Page;
 
-//new app
-$app = new \Slim\Slim();
+//instancia o Slim framework (ROTAS)
+$app = new Slim(); 
 
-//new debug
-$app->config('debug', true);
+$app->config('debug', true); //Configuração
 
-//rout to index
-$app->get('/', function() {
-    
-	$sql = new Hcode\DB\Sql();
-	$results = $sql->select("SELECT * FROM tb_users");
-	echo json_encode($results);
-});
+//passa pelo método get ROTA ( \ )
+$app->get('/', function() { 
+    //instancia uma nova Page (chama o construtor e add o header na tela)
+	$page = new Page(); 
 
-//run app
-$app->run();
+	//chama setTPL passando "index" como paranetro, esse arquivo será desenhado na tela
+	$page->setTpl("index"); 
+
+}); 
+//apos o fim da execução chama o destruct com o footer da página
+
+$app->run(); //roda o Slim
 
  ?>
