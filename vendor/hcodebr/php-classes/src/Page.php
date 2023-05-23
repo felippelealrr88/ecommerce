@@ -15,7 +15,7 @@ class Page {
 	];
 
 	//metodo mágico construtor (não precisa ser instanciado, sobe junto com um new Page)	
-	public function __construct($opts = array()) //recebe um array de opções
+	public function __construct($opts = array(), $tpl_dir = "/views/") //recebe um array de opções e o nome da rota
 	{
 
 		//sobrescreve o array padrão com as opções informadas do usuário
@@ -24,7 +24,7 @@ class Page {
 		//configurações do Rain TPL
 		$config = array(
 		    "base_url"      => null,
-		    "tpl_dir"       => $_SERVER['DOCUMENT_ROOT']."/views/", //variável de ambiente do diretório root . pasta
+		    "tpl_dir"       => $_SERVER['DOCUMENT_ROOT'].$tpl_dir, //variável de ambiente do diretório root . pasta
 		    "cache_dir"     => $_SERVER['DOCUMENT_ROOT']."/views-cache/",
 		    "debug"         => false
 		);
