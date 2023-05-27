@@ -8,8 +8,8 @@ class Page {
 
 	private $tpl; //atributo criado para poder ser usado em outros métodos com this->
 	private $options = []; //array de opções
-	private $defaults = [  //array de opções padrão
-		"header"=>true,
+	private $defaults = [  //array de opções padrão dos templates
+		"header"=>true, //por padrão tem cabeçalho e rodapé, com exceção do login que passa false para esses parametros
 		"footer"=>true,
 		"data"=>[]
 	];
@@ -37,7 +37,7 @@ class Page {
 		//passa o array de opções para o método setData
 		if ($this->options['data']) $this->setData($this->options['data']); 
 
-		//Se existe um header então desenha ele na tela
+		//Se $options[header] for true então carrega o header
 		if ($this->options['header'] === true) $this->tpl->draw("header", false); 
 
 	}
@@ -45,7 +45,7 @@ class Page {
 	//método mágico destrutor (não precisa ser instanciado, roda no final)	
 	public function __destruct()
 	{
-		//Se existe um footer então desenha ele na tela
+		//Se $option[footer] for true então carrega o footer
 		if ($this->options['footer'] === true) $this->tpl->draw("footer", false); 
 
 	}
