@@ -35,11 +35,11 @@
 
     <form action="/admin/login" method="post">
       <div class="form-group has-feedback">
-        <input type="text" class="form-control" placeholder="Usuário" name="login">
+        <input type="text" class="form-control" placeholder="Usuário" name="login" required>
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Senha" name="password">
+        <input type="password" class="form-control" placeholder="Senha" name="password" required>
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="row">
