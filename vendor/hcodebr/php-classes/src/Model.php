@@ -28,6 +28,7 @@ class Model {
         }
     }
 
+    //cria dinamicamente (a partir de um array) atributo e valor
     public function setData($data= array()){
         foreach ($data as $key => $value) {
             // string "set" concatenada com o valor de $key

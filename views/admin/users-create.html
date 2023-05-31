@@ -55,7 +55,7 @@
           <div class="box-footer">
             <button type="submit" class="btn btn-success">Cadastrar</button>
           </div>
-        </form>
+        </form action="/admin/users/create" method="post">
       </div>
   	</div>
   </div>
