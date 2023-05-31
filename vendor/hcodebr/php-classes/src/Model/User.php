@@ -85,6 +85,24 @@ class User extends Model{
 
     }
 
+    //função que lista todos os usuários    
+    public function get($iduser)
+	{
+
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
+			":iduser"=>$iduser));
+
+		$data = $results[0];
+
+		//$data['desperson'] = utf8_encode($data['desperson']);
+
+
+		$this->setData($data);
+
+	}
+
 }
 
 

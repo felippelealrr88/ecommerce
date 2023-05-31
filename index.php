@@ -106,7 +106,7 @@ $app->get("/admin/users/:iduser/delete", function($iduser) {
 });
 
 //Editar usuários
-	$app->get("/admin/users/:iduser", function($iduser) { 
+/*$app->get("/admin/users/:iduser", function($iduser) { 
     
 	//verifica se está logado
 	User::verifyLogin();
@@ -117,7 +117,25 @@ $app->get("/admin/users/:iduser/delete", function($iduser) {
 	//chama setTPL passando "update" como paranetro, esse arquivo será desenhado na tela
 	$page->setTpl("users-update"); 
 
+});*/
+
+$app->get("/admin/users/:iduser", function($iduser) {
+
+	User::verifyLogin();
+
+	$user = new User();
+
+	$user->get((int)$iduser);
+
+	$page = new PageAdmin();
+
+	$page->setTpl("users-update", array(
+		"user"=>$user->getValues()
+	));
+
 });
+
+
 
 //Salvar usuário criado
 $app->post("/admin/users/create", function() {
