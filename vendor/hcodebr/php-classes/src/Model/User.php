@@ -1,13 +1,15 @@
 <?php
 namespace Hcode\Model;
 
-
+use Exception;
 use \Hcode\DB\Sql;
+use Hcode\Mailer;
 use Hcode\Model;
 
 class User extends Model{
 
         const SESSION = "User";
+        const SECRET = "HcodePhp7_Secret";
     
         protected $fields = [
             "iduser", "idperson", "deslogin", "despassword", "inadmin", "dtergister"
@@ -150,6 +152,62 @@ class User extends Model{
         $sql->query("CALL sp_users_delete(:iduser)", array(
             ":iduser"=>$this->getiduser()
         ));
+
+    }
+
+    //Envia o email para o esqueci a senha
+    public static function getForgot($email){
+
+        $sql = new Sql();
+
+        //verifica se o email está cadastrado
+        $results = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE a.desemail = :email;", array(
+            ":email"=>$email
+        ));
+
+        //valida se encontrou email
+        if(count($results) === 0){
+            throw new \Exception("Não foi possível recuperar a senha");
+        }else{
+
+            $data = $results[0];
+            
+            //Procedure que salva info da tentativa de recuperação com id e ip do usuario
+            $results2 = $sql->select("CALL sp_userspasswordsrecoveries_create(:iduser, :desip)", array(
+                ":iduser"=>$data["iduser"],
+                ":desip"=>$_SERVER["REMOTE_ADDR"]
+
+            ));
+
+            //verifica se criou
+            if(count($results2) === 0){
+
+                throw new \Exception("Não foi possível recuperar a senha");
+            }else{
+
+                $dataRecovery = $results2[0];
+
+                //criptografa o usuário para mandar o email (em base64)
+                $key = User::SECRET;
+                $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length("AES-256-CBC"));
+
+                $code = base64_encode(openssl_encrypt($dataRecovery["idrecovery"], "AES-256-CBC", $key, 0, $iv));
+
+                $link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";
+
+                //Usar o phpmailer para mandar o email
+                $mailer = new Mailer($data["desemail"], $data["desperson"], "Redefinir senha da Hcode Store", "forgot", array(
+                    "name"=>$data["desperson"],
+                    "link"=>$link
+                ));
+
+                $mailer->send();
+
+                return $data;
+
+
+            }
+        }
 
     }
 

@@ -3,7 +3,7 @@
         'name' => 'felippelealrr88/ecommerce',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '645451e7f279adf21f84233576ff2bfefc6162b3',
+        'reference' => '2b6a13e500fa9b51974f775d9f2ea525b3b5088d',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'felippelealrr88/ecommerce' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '645451e7f279adf21f84233576ff2bfefc6162b3',
+            'reference' => '2b6a13e500fa9b51974f775d9f2ea525b3b5088d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

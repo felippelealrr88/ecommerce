@@ -10,7 +10,7 @@ use \Hcode\Page;
 use Hcode\PageAdmin;
 use \Hcode\Model\User;
 
-//instancia o Slim framework (ROTAS)
+//====================== CONFIGURAÇÕES DE ROTAS DO SLIM =======================================================
 $app = new Slim(); 
 
 $app->config("debug", true); //Configuração
@@ -25,7 +25,8 @@ $app->get("/", function() {
 
 });
 
-//Rota do Admin
+//================================== ADMIN ==================================================================
+
 $app->get("/admin", function() { 
 	//verifica se está logado
 	User::verifyLogin();
@@ -37,19 +38,19 @@ $app->get("/admin", function() {
 
 });
 
-//Rota do Login Admin
+//==================================== LOGIN ===================================================================
 $app->get("/admin/login", function() { 
-    //instancia uma nova Page (passa o cabeçalho e rodapé como falso para o PageAdmin)
+    
 	$page = new PageAdmin([
 		"header"=>false,
 		"footer"=>false
 	]); 
-//chama o template
+
 	$page->setTpl("login");
 
 });
 
-//Rota do Login Admin POST
+
 $app->post("/admin/login", function() { 
 	//valida usuário (recebe usuário e senha)
     User::login($_POST["login"], $_POST["password"]);
@@ -57,19 +58,20 @@ $app->post("/admin/login", function() {
 	header("Location: /admin");
 	exit;
 });
+//================================================= LOGOUT =================================================================================
 
-//rota de logout
 $app->get("/admin/logout", function() {
 
 	User::logout();
 
-	header("Location: /admin/login");
+	header("Location:/admin/login");
 	exit;
 
 });
 
-//Rota Lista de usuários
+//============================================== USUARIOS ==================================================================================
 
+//LISTAR
 $app->get("/admin/users", function() {
 	
 	User::verifyLogin();
@@ -84,7 +86,7 @@ $app->get("/admin/users", function() {
 	));
 });
 
-//Criar usuários
+//CRIAR
 	$app->get("/admin/users/create", function() { 
     
 	//verifica se está logado
@@ -98,42 +100,6 @@ $app->get("/admin/users", function() {
 
 });
 
-//apagar usuário
-$app->get("/admin/users/:iduser/delete", function($iduser) {
-	
-	User::verifyLogin();
-
-	$user = new User();
-
-	//carrega o usuário para ver se ainda existe
-	$user->getUser((int)$iduser);
-
-	$user->delete();
-
-	header("Location: /admin/users");
-	exit;
-
-
-});
-
-//Editar usuários
-$app->get("/admin/users/:iduser", function($iduser) {
-
-	User::verifyLogin();
-
-	$user = new User();
-
-	$user->getUser((int)$iduser);
-
-	$page = new PageAdmin();
-
-	$page->setTpl("users-update", array(
-		"user"=>$user->getValues()
-	));
-
-});
-
-//Cria usuário enviando o form por post
 $app->post("/admin/users/create", function () {
 
 	User::verifyLogin();
@@ -154,12 +120,46 @@ $app->post("/admin/users/create", function () {
 
    $user->save();
 
-   header("Location: /admin/users");
+   header("Location:/admin/users");
 	exit;
 
 });
 
-//Edita o form enviado por post
+//DELETAR
+$app->get("/admin/users/:iduser/delete", function($iduser) {
+	
+	User::verifyLogin();
+
+	$user = new User();
+
+	//carrega o usuário para ver se ainda existe
+	$user->getUser((int)$iduser);
+
+	$user->delete();
+
+	header("Location:/admin/users");
+	exit;
+
+
+});
+
+//EDITAR
+$app->get("/admin/users/:iduser", function($iduser) {
+
+	User::verifyLogin();
+
+	$user = new User();
+
+	$user->getUser((int)$iduser);
+
+	$page = new PageAdmin();
+
+	$page->setTpl("users-update", array(
+		"user"=>$user->getValues()
+	));
+
+});
+
 $app->post("/admin/users/:iduser", function($iduser) {
 	
 	User::verifyLogin();
@@ -175,12 +175,45 @@ $app->post("/admin/users/:iduser", function($iduser) {
 
 	$user->update();
 
-	header("Location: /admin/users");
+	header("Location:/admin/users");
 	exit;
 });
 
-//apos o fim da execução chama o destruct com o footer da página
+//============================================= ESQUECEU A SENHA ========================================================
 
+//FORGOT
+$app->get("/admin/forgot", function(){
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot");
+});
+
+$app->post("/admin/forgot", function(){
+
+	$user = User::getForgot($_POST["email"]);
+
+	header("Location:/admin/forgot/sent");
+	exit;
+
+});
+
+//ENVIADO
+$app->get("/admin/forgot/sent", function(){
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot-sent");
+
+});
+
+//apos o fim da execução chama o destruct com o footer da página
 $app->run(); //roda o Slim
 
  ?>
