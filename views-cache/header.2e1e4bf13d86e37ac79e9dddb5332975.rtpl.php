@@ -82,7 +82,7 @@ desired effect
               <span class="label label-success">4</span>
             </a>
             <ul class="dropdown-menu">
-              <li class="header">You have 4 messages</li>
+              <li class="header">Você tem 4 mensagens</li>
               <li>
                 <!-- inner menu: contains the messages -->
                 <ul class="menu">
@@ -94,8 +94,8 @@ desired effect
                       </div>
                       <!-- Message title and timestamp -->
                       <h4>
-                        Support Team
-                        <small><i class="fa fa-clock-o"></i> 5 mins</small>
+                        Suporte
+                        <small><i class="fa fa-clock-o"></i> 5 minutos</small>
                       </h4>
                       <!-- The message -->
                       <p>Why not buy a new awesome theme?</p>
