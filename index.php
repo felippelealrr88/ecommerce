@@ -213,6 +213,50 @@ $app->get("/admin/forgot/sent", function(){
 
 });
 
+$app->get("/admin/forgot/reset", function(){
+	//Identificação do usuário
+	$user = User::validForgotDecrypt($_GET["code"]);
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot-reset", array(
+		"name"=>$user["desperson"],
+		"code"=>$_GET["code"]
+	));
+
+});
+
+//Seta que o código foi usado
+$app->post("/admin/forgot/reset", function(){
+
+	$forgot = User::validForgotDecrypt($_POST["code"]);
+
+	//Recuperação já usada
+	User::setForgotUsed($forgot["idrecovery"]);
+
+	$user = new User();
+	//carrega os dados do usuário
+	$user->get((int)$forgot["iduser"]);
+
+	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
+		"cost"=>12
+	]);
+
+	//seta a nova senha informada no banco (hash)
+	$user->setPassword($password);
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot-reset-success");
+
+});
+
 //apos o fim da execução chama o destruct com o footer da página
 $app->run(); //roda o Slim
 
