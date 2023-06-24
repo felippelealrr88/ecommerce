@@ -9,6 +9,7 @@ use \Slim\Slim;
 use \Hcode\Page;
 use Hcode\PageAdmin;
 use \Hcode\Model\User;
+use \Hcode\Model\Category;
 
 //====================== CONFIGURAÇÕES DE ROTAS DO SLIM =======================================================
 $app = new Slim(); 
@@ -69,7 +70,7 @@ $app->get("/admin/logout", function() {
 
 });
 
-//============================================== USUARIOS ==================================================================================
+//============================================== CRUD USUARIOS ==================================================================================
 
 //LISTAR
 $app->get("/admin/users", function() {
@@ -222,6 +223,7 @@ $app->get("/admin/forgot/reset", function(){
 		"footer"=>false
 	]);
 
+	//passa um array para o template
 	$page->setTpl("forgot-reset", array(
 		"name"=>$user["desperson"],
 		"code"=>$_GET["code"]
@@ -256,6 +258,101 @@ $app->post("/admin/forgot/reset", function(){
 	$page->setTpl("forgot-reset-success");
 
 });
+
+//====================== CRUD CATEGORIAS ===================================================================
+
+$app->get("/admin/categories", function(){
+
+	User::verifyLogin();
+
+	$categories = Category::listAll();
+	
+	$page = new PageAdmin();
+
+	//passa um array de categorias para o template
+	$page->setTpl("categories",[
+		"categories"=>$categories
+	]);
+
+});
+
+$app->get("/admin/categories/create", function(){
+
+	User::verifyLogin();
+
+	$page = new PageAdmin();
+
+	$page->setTpl("categories-create");
+});
+
+$app->post("/admin/categories/create", function(){
+
+	User::verifyLogin();
+
+	$category = new Category();
+
+	//Seta o array Global Post (model)
+	$category->setData($_POST);
+
+	$category->saveCategory();
+
+	header("Location: /admin/categories");
+	exit;
+});
+
+$app->get("/admin/categories/:idcategory/delete", function($idcategory){
+
+	User::verifyLogin();
+
+	$category = new Category();
+
+	//carrega para ter certeza que existe no banco
+	$category->getCategory((int)$idcategory);
+
+	$category->deleteCategory();
+
+	header("Location: /admin/categories");
+	exit;
+});
+
+$app->get("/admin/categories/:idcategory", function($idcategory){
+
+	User::verifyLogin();
+
+	$category = new Category();
+
+	//Converte da URL (string) em inteiro
+	$category->getCategory((int)$idcategory);
+
+	$page = new PageAdmin();
+
+	//converte objeto para array e manda para o template
+	$page->setTpl("categories-update", array(
+		"category"=>$category->getValues()
+	));
+});
+
+$app->post("/admin/categories/:idcategory", function($idcategory){
+
+	User::verifyLogin();
+
+	$category = new Category();
+
+	//Converte da URL (string) em inteiro
+	$category->getCategory((int)$idcategory);
+
+	//seta os dados com dados do formulario
+	$category->setData($_POST);
+
+	$category->saveCategory();
+
+	header("Location: /admin/categories");
+	exit;
+
+});
+
+//=======================================================================================
+
 
 //apos o fim da execução chama o destruct com o footer da página
 $app->run(); //roda o Slim

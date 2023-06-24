@@ -15,6 +15,7 @@ class User extends Model{
         protected $fields = [
             "iduser", "idperson", "deslogin", "despassword", "inadmin", "dtergister"
         ];    
+//======================================================================================================
 
     public static function login($login, $password):User{
         
@@ -51,7 +52,8 @@ class User extends Model{
 
     } 
     
-    //verifica se está logado
+//===============================================================================================
+
     public static function verifyLogin($inadmin = true){
         //se não está ativa vai para admin/login
         if (
@@ -72,6 +74,8 @@ class User extends Model{
 
     }
 
+//================================================================================================
+
     public static function logout()
 	{
 
@@ -79,7 +83,8 @@ class User extends Model{
 
 	}
 
-//função que lista todos os usuários    
+//==============================================================================================  
+
     public static function listAll(){
 
         $sql = new Sql();
@@ -88,7 +93,8 @@ class User extends Model{
 
     }
 
-    //função que lista por id   
+//=================================================================================================  
+
     public function getUser($iduser)
 	{
 
@@ -104,11 +110,10 @@ class User extends Model{
         //seta o primeiro registro no objeto    
 		$this->setData($data);
 
-        
-
 	}
 
-    //função que cria um novo usuário
+//=====================================================================================================
+
     public function save(){
         
         $sql = new Sql();
@@ -124,8 +129,9 @@ class User extends Model{
        //seta no proprio objeto     
        $this->setData($results[0]);
 
-
     }
+
+//======================================================================================================
 
     public function update(){
         
@@ -143,8 +149,9 @@ class User extends Model{
        //seta no proprio objeto     
        $this->setData($results[0]);
 
-
     }
+
+//============================================================================================================
 
     public function delete(){
        
@@ -156,7 +163,8 @@ class User extends Model{
 
     }
 
-    //Envia o email para o esqueci a senha
+//========================================================================================================
+
     public static function getForgot($email){
 
         $sql = new Sql();
@@ -213,7 +221,8 @@ class User extends Model{
 
     }
 
-    //descriptografa o id
+//=====================================================================================================
+
     public static function validForgotDecrypt($code){
 
         //Descriptografar o id
@@ -224,9 +233,7 @@ class User extends Model{
         //regras de verificação no banco (regras de validação do recovery)
         $sql = new Sql();
 
-        $results = $sql->select("SELECT * FROM tb_userspasswordsrecoveries a INNER JOIN tb_users b USING(iduser) INNER JOIN tb_persons c USING(idperson) WHERE a.idrecovery = :idrecovery
-        AND a.dtrecovery IS NULL AND DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW();
-        ", array(
+        $results = $sql->select("SELECT * FROM tb_userspasswordsrecoveries a INNER JOIN tb_users b USING(iduser) INNER JOIN tb_persons c USING(idperson) WHERE a.idrecovery = :idrecovery AND a.dtrecovery IS NULL AND DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW(); ", array(
             ":idrecovery"=>$idrecovery
         ));
 
@@ -240,7 +247,8 @@ class User extends Model{
 
     }
 
-    //Usuário já recuperado
+//==========================================================================================
+
     public static function setForgotUsed($idrecovery){
 
         $sql = new Sql();

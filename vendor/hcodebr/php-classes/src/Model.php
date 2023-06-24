@@ -18,24 +18,26 @@ class Model {
 
 // Testando o tipo do método, get ou set        
         switch ($method) {
-            case "get":
-                return $this->values["$fieldName"];
+
+            case "get": // se está setado retorna o fildname se não retorna null
+                return (isset($this->values[$fieldName])) ? $this->values[$fieldName] : NULL;
                 break;
 
             case "set":
-                $this->values["$fieldName"] = $args[0];
+                $this->values[$fieldName] = $args[0];
                 break;
         }
     }
 
     //cria dinamicamente (a partir de um array) atributo e valor
-    public function setData($data= array()){
+    public function setData($data = array()){
         foreach ($data as $key => $value) {
             // string "set" concatenada com o valor de $key
             $this->{"set".$key}($value);
         }
     }
-
+//===========================================================================
+//converte objeto para array
     public function getValues(){
 
         //retorna o atributo privado indiretamente
