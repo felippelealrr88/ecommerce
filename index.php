@@ -240,7 +240,7 @@ $app->post("/admin/forgot/reset", function(){
 	User::setForgotUsed($forgot["idrecovery"]);
 
 	$user = new User();
-	//carrega os dados do usuário
+	//carrega os dados do usuário convertendo
 	$user->get((int)$forgot["iduser"]);
 
 	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
@@ -351,6 +351,21 @@ $app->post("/admin/categories/:idcategory", function($idcategory){
 
 });
 
+$app->get("/categories/:idcategory", function($idcategory){
+
+	$category = new Category();
+	//carrega a categoria
+	$category->get((int)$idcategory);
+
+	$page = new Page();
+
+	//carrega o template category
+	$page->setTpl("category", [
+		'category'=>$category->getValues(),
+		'products'=>[]
+	]);
+
+});
 //=======================================================================================
 
 
