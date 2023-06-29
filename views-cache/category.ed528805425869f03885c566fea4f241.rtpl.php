@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="product-bit-title text-center">
-                    <h2>Nome da categoria</h2>
+                    <h2><?php echo htmlspecialchars( $category["descategory"], ENT_COMPAT, 'UTF-8', FALSE ); ?></h2>
                 </div>
             </div>
         </div>
@@ -14,6 +14,7 @@
     <div class="zigzag-bottom"></div>
     <div class="container">
         <div class="row">
+            
             <?php $counter1=-1;  if( isset(products) && ( is_array(products) || products instanceof Traversable ) && sizeof(products) ) foreach( products as $key1 => $value1 ){ $counter1++; ?>
 
             <div class="col-md-3 col-sm-6">

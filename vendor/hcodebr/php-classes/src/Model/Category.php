@@ -8,7 +8,6 @@ use Hcode\Model;
 
 class Category extends Model{
 
-//=============================================================================================
 
     public static function listAll(){
 
@@ -16,7 +15,6 @@ class Category extends Model{
         return $sql->select("SELECT * FROM db_ecommerce.tb_categories ORDER BY idcategory;");
     }
 
-//==================================================================================================
 
     public function saveCategory(){
 
@@ -33,7 +31,7 @@ class Category extends Model{
             Category::updateFile();
            
         }
-//==========================================================================================
+
 
 public function getCategory($idcategory){
 
@@ -46,7 +44,6 @@ public function getCategory($idcategory){
     $this->setData($results[0]);
 }
 
-//==============================================================================================================
 
 public function deleteCategory(){
 
@@ -59,7 +56,7 @@ public function deleteCategory(){
     Category::updateFile();
 
 }
-//================================================================================================
+
 
 public static function updateFile(){
 
