@@ -22,7 +22,7 @@
           <div class="box-body">
             <div class="form-group">
               <label for="desproduct">Nome do produto</label>
-              <input type="text" class="form-control" id="desproduct" name="desproduct" placeholder="Digite o nome do produto" value="<?php echo htmlspecialchars( $product["desproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?>">
+              <input autofocus="true" type="text" class="form-control" id="desproduct" name="desproduct" placeholder="Digite o nome do produto" value="<?php echo htmlspecialchars( $product["desproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?>">
             </div>
             <div class="form-group">
               <label for="vlprice">Preço</label>
@@ -58,6 +58,7 @@
           <!-- /.box-body -->
           <div class="box-footer">
             <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="/admin/products"  class="btn btn-danger"></i> Cancelar</a>
           </div>
         </form>
       </div>

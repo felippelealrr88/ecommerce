@@ -28,6 +28,7 @@
           <!-- /.box-body -->
           <div class="box-footer">
             <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="/admin/categories"  class="btn btn-danger"></i> Cancelar</a>
           </div>
         </form>
       </div>
