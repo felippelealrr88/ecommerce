@@ -14,6 +14,21 @@ class Product extends Model{
         return $sql->select("SELECT * FROM tb_products ORDER BY desproduct;");
     }
 
+    //checa a lista de produtos
+    public static function checkList($list){
+        
+        //Altera row dentro o foreach por causa do &
+        foreach ($list as &$row) {
+            
+            $p = new Product();
+
+            $p->setData($row);
+            //getValues trata a foto com checkPhoto
+            $row = $p->getValues();
+        }
+
+        return $list;
+    }
 
     public function saveProduct(){
 
