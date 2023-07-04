@@ -27,11 +27,11 @@
           <div class="box-body">
             <div class="form-group">
               <label for="desperson">Nome</label>
-              <input autofocus="true" type="text" class="form-control" id="desperson" name="desperson" placeholder="Digite o nome">
+              <input required="true" autofocus="true" type="text" class="form-control" id="desperson" name="desperson" placeholder="Digite o nome">
             </div>
             <div class="form-group">
               <label for="deslogin">Login</label>
-              <input type="text" class="form-control" id="deslogin" name="deslogin" placeholder="Digite o login">
+              <input required="true" type="text" class="form-control" id="deslogin" name="deslogin" placeholder="Digite o login">
             </div>
             <div class="form-group">
               <label for="nrphone">Telefone</label>
@@ -43,7 +43,7 @@
             </div>
             <div class="form-group">
               <label for="despassword">Senha</label>
-              <input type="password" class="form-control" id="despassword" name="despassword" placeholder="Digite a senha">
+              <input required="true" type="password" class="form-control" id="despassword" name="despassword" placeholder="Digite a senha">
             </div>
             <div class="checkbox">
               <label>
@@ -54,6 +54,7 @@
           <!-- /.box-body -->
           <div class="box-footer">
             <button type="submit" class="btn btn-success">Cadastrar</button>
+            <a href="/admin/users"  class="btn btn-danger"></i> Cancelar</a>
           </div>
         </form action="/admin/users/create" method="post">
       </div>

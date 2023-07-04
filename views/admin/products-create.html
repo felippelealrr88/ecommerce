@@ -27,11 +27,11 @@
           <div class="box-body">
             <div class="form-group">
               <label for="desproduct">Nome da produto</label>
-              <input autofocus="true" type="text" class="form-control" id="desproduct" name="desproduct" placeholder="Digite o nome do produto">
+              <input required="true" type="text" class="form-control" id="desproduct" name="desproduct" placeholder="Digite o nome do produto">
             </div>
             <div class="form-group">
               <label for="vlprice">Preço</label>
-              <input type="number" class="form-control" id="vlprice" name="vlprice" step="0.01" placeholder="0.00">
+              <input required="true" type="number" class="form-control" id="vlprice" name="vlprice" step="0.01" placeholder="0.00">
             </div>
             <div class="form-group">
               <label for="vlwidth">Largura</label>
@@ -58,6 +58,7 @@
           <!-- /.box-body -->
           <div class="box-footer">
             <button type="submit" class="btn btn-success">Cadastrar</button>
+            <a href="/admin/products"  class="btn btn-danger"></i> Cancelar</a>
           </div>
         </form>
       </div>
