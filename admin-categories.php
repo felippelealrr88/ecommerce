@@ -34,7 +34,7 @@ $app->post("/admin/categories/create", function(){
 
 	$category = new Category();
 
-	//Seta o array Global Post (model)
+	//Seta os dados com o POST do formulário
 	$category->setData($_POST);
 
 	$category->saveCategory();

@@ -3,7 +3,6 @@ namespace Hcode\Model;
 
 use Exception;
 use \Hcode\DB\Sql;
-use Hcode\Mailer;
 use Hcode\Model;
 
 class Category extends Model{
@@ -53,6 +52,7 @@ public function deleteCategory(){
     Category::updateFile();
 }
 
+//Cria o menu de categorias dinamico em html
 public static function updateFile(){
 
     $categories = Category::listAll();
@@ -60,10 +60,13 @@ public static function updateFile(){
     $html = [];
 
     foreach ($categories as $row) {
+        //html adicionado ao arquivo
         array_push($html, '<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
     }
+    //salva os arquivos
     file_put_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "views" .DIRECTORY_SEPARATOR. "categories-menu.html", implode('', $html));
 }
+
 
 public function getProducts($related = true){
 
@@ -94,13 +97,46 @@ public function getProducts($related = true){
         ", [
             ':idcategory'=>$this->getidcategory()
         ]);
-
-
-
     }
-
 }
 
+//Paginação do site
+public function getProductsPage($page = 1, $itemsPerPage = 8){
+    
+    //Calculo das páginas 
+    $start = ($page - 1) * $itemsPerPage;
+
+    $sql = new Sql();
+
+    //Primeira consulta
+    $results = $sql->select("
+        SELECT SQL_CALC_FOUND_ROWS *
+        FROM tb_products a
+        INNER JOIN tb_productscategories b ON a.idproduct = b.idproduct
+        INNER JOIN tb_categories c ON c.idcategory = b.idcategory
+        WHERE c.idcategory = :idcategory
+        LIMIT $start, $itemsPerPage;
+    ",[
+        ':idcategory'=>$this->getidcategory()
+    ]);
+
+    //Para saber a quantidade de itens
+    $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+    
+    return [
+        //retorna os dados do produto como array checando os produtos
+        'data'=>Product::checkList($results),
+        //numero total de registros na primeira linha e na coluna escolhida
+        'total'=>(int)$resultTotal[0]["nrtotal"],
+        //saber quantas páginas foram trazidas (converte arredondando pra cima com ceil)
+        'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+
+
+    ];
+}
+
+//add produto na categoria
 public function addProduct(Product $product) {
 
     $sql = new Sql();
