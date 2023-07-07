@@ -147,6 +147,29 @@ public function setPhoto($file){
     $this->checkPhoto();
 }
 
+//metodo que pega a url da página
+public function getFromUrl($desurl){
+    
+    $sql = new Sql();
+
+    $rows =  $sql->select("SELECT * FROM tb_products WHERE desurl = :desurl LIMIT 1", [
+        ':desurl'=>$desurl
+    ]);
+
+    //coloca as informações dentro do proprio objeto Product
+    $this->setData($rows[0]);
+}
+
+//Lista as categorias do banco
+public function getCategories(){
+
+    $sql = new Sql();
+
+    $sql->select("SELECT * FROM tb_categories a INNER JOIN tb_productscategories b ON a.idcategory = b.idcategory WHERE b.idproduct = :idproduct", [
+        ':idproduct'=>$this->getidproduct()
+    ]);
+}
+
 }
 
 ?>

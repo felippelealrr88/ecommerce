@@ -19,6 +19,7 @@ $app->get("/", function() {
 
 });
 
+//categoria de produtos
 $app->get("/categories/:idcategory", function($idcategory){
 
 	//Recebe a página atual, se não foi definido é a página 1
@@ -53,6 +54,23 @@ $app->get("/categories/:idcategory", function($idcategory){
 		'pages'=>$pages
 	]);
 
+});
+
+//Página de detalhes do Produto
+$app->get("/products/:desurl", function($desurl){
+
+	$product = new Product();
+
+	//carrega os dados do banco de um único produto
+	$product->getFromUrl($desurl);
+	
+	$page = new Page();
+
+	$page->setTpl("product-detail", [
+		'product'=>$product->getValues(),
+		'categories'=>$product->getCategories()
+	]);
+	//var_dump($page);
 });
 
 
