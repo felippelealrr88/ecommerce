@@ -36,7 +36,7 @@ class Model {
             $this->{"set".$key}($value);
         }
     }
-//===========================================================================
+
 //converte objeto para array
     public function getValues(){
 

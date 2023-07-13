@@ -11,11 +11,58 @@ class User extends Model{
         const SESSION = "User";
         const SECRET = "HcodePhp7_Secret";
         const SECRET_IV = "HcodePhp7_Secret_IV";
-    
+
         protected $fields = [
             "iduser", "idperson", "deslogin", "despassword", "inadmin", "dtergister"
         ];    
 //======================================================================================================
+    
+    //Saber se o usuário tá logado    
+    public static function getFromSession(){
+
+        $user = new User();
+
+        //verifica se a sessão está definida
+        if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
+            
+            //seta as informações da sessão
+            $user->setData($_SESSION[User::SESSION]);
+        }
+
+        return $user;
+    }
+    
+    //verifica o login
+    public static function checkLogin($inadmin = true){
+            if (
+                !isset($_SESSION[User::SESSION]) //Se a sessão não existe OU
+			    || 
+			    !$_SESSION[User::SESSION] //Se está vazio OU
+			    ||
+			    !(int)$_SESSION[User::SESSION]["iduser"] > 0 //se id > 0
+            ) {
+                //Não está logado
+                return false;
+            }else{
+                //Se está logado cai no else
+                //Verifica se é um admin (Se o usuário tenta acessar uma rota do admin)
+                if($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true){
+
+                    return true;
+                }
+
+                // Ele tá logado mas não precisa ser admin
+                else if($inadmin === false){
+                    //pode entrar
+                    return true;
+                }
+                //Se algo for diferente disso não está logado
+                else{
+                    return false;
+
+                }
+            }
+    }
 
     public static function login($login, $password):User{
         
@@ -56,22 +103,11 @@ class User extends Model{
 
     public static function verifyLogin($inadmin = true){
         //se não está ativa vai para admin/login
-        if (
-			!isset($_SESSION[User::SESSION]) //se não existir
-			|| 
-			!$_SESSION[User::SESSION] //se vazio
-			||
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0 //se id >0
-			||
-			(bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin //não pode acessar administração
-		) {
+        if (User::checkLogin($inadmin)) {
 			
 			header("Location: /admin/login");
 			exit;
-
 		}
-        
-
     }
 
 //================================================================================================
