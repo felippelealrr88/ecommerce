@@ -21,7 +21,7 @@ class User extends Model{
     public static function getFromSession(){
 
         $user = new User();
-
+        
         //verifica se a sessão está definida
         if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
             
@@ -43,6 +43,7 @@ class User extends Model{
             ) {
                 //Não está logado
                 return false;
+
             }else{
                 //Se está logado cai no else
                 //Verifica se é um admin (Se o usuário tenta acessar uma rota do admin)
@@ -50,8 +51,7 @@ class User extends Model{
 
                     return true;
                 }
-
-                // Ele tá logado mas não precisa ser admin
+                // Ele tá logado mas não é admin
                 else if($inadmin === false){
                     //pode entrar
                     return true;
