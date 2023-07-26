@@ -10,6 +10,7 @@ class Cart extends Model{
 
     //constante com a sessão do carrinho 
     const SESSION = "Cart";
+    const SESSION_ERROR = "CartError";
 
     //Verifica o carrinho (se já existe ou não)
     public static function getFromSession(){
@@ -127,7 +128,7 @@ class Cart extends Model{
             ':idproduct'=>$product->getidproduct()
         ]);
 
-        //$this->getCalculateTotal();
+        $this->getCalculateTotal();
         
     }
 
@@ -150,6 +151,8 @@ class Cart extends Model{
                 ':idproduct'=>$product->getidproduct()
             ]);
         }
+        $this->getCalculateTotal();
+
     }
 
     //Lista os produtos que já foram add ao carrinho
@@ -172,6 +175,175 @@ class Cart extends Model{
         return Product::checkList($rows);
         
     }
+
+    public function getProductsTotals(){
+
+		$sql = new Sql();
+
+        //Soma todas os campos necessários
+		$results = $sql->select("
+			SELECT SUM(vlprice) AS vlprice, SUM(vlwidth) AS vlwidth, SUM(vlheight) AS vlheight, SUM(vllength) AS vllength, SUM(vlweight) AS vlweight, COUNT(*) AS nrqtd
+			FROM tb_products a
+			INNER JOIN tb_cartsproducts b ON a.idproduct = b.idproduct
+			WHERE b.idcart = :idcart AND dtremoved IS NULL;
+		", [
+			':idcart'=>$this->getidcart()
+		]);
+
+        //Tratamento se for vazio
+		if (count($results) > 0) {
+			return $results[0];
+		} else {
+			return [];
+		}
+
+	}
+
+    public function setFreight($nrzipcode){
+
+        //validar que somente números serão passados sem traço
+		$nrzipcode = str_replace('-', '', $nrzipcode);
+
+        // $totals recebe os totais dos produtos do carrinho
+		$totals = $this->getProductsTotals();
+
+        //Verifica se tem produtos dentro do carrinho
+		if ($totals['nrqtd'] > 0) {
+
+            //Regra de negócio do WebService
+            //Comprimento
+			if ($totals['vllength'] < 15) $totals['vllength'] = 15;
+            if ($totals['vllength'] > 100) $totals['vllength'] = 100;
+
+            //Largura
+            if ($totals['vlwidth'] < 10) $totals['vlwidth'] = 10;
+            if ($totals['vlwidth'] > 100) $totals['vlwidth'] = 100;
+            
+            //Altura
+            if ($totals['vlheight'] < 2) $totals['vlheight'] = 2;
+            if ($totals['vlheight'] < 2) $totals['vlheight'] = 2;
+
+            //Passa as variáveis na query string ? (Espera um array)
+			$qs = http_build_query([
+				'nCdEmpresa'=>'',
+				'sDsSenha'=>'',
+				'nCdServico'=>'40010',
+				'sCepOrigem'=>'09853120',
+				'sCepDestino'=>$nrzipcode,
+				'nVlPeso'=>$totals['vlweight'],
+				'nCdFormato'=>'1',
+				'nVlComprimento'=>$totals['vllength'],
+				'nVlAltura'=>$totals['vlheight'],
+				'nVlLargura'=>$totals['vlwidth'],
+				'nVlDiametro'=>'0',
+				'sCdMaoPropria'=>'S',
+				'nVlValorDeclarado'=>$totals['vlprice'],
+				'sCdAvisoRecebimento'=>'S'
+			]);
+
+            //Passa as informações para o webservice dos correios (XML)
+			$xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?".$qs);
+
+            //echo json_encode($xml); exit;
+            //Recebe o resultado da consulta (Objeto $result)
+			$result = $xml->Servicos->cServico;
+
+            //Verifica se houve erro
+			if ($result->MsgErro != '') {
+
+                //Define a mensagem de erro retornada do WebService
+				Cart::setMsgError($result->MsgErro);
+
+			} else {
+
+                //Se não houve erro limpa
+				Cart::clearMsgError();
+
+			}
+
+            //Seta o Prazo, Valor e Cep nas variáveis de Cart (banco)
+			$this->setnrdays($result->PrazoEntrega);
+			$this->setvlfreight(Cart::formatValueToDecimal($result->Valor));
+			$this->setdeszipcode($nrzipcode);
+
+			$this->saveCart();
+
+            //caso precise de mais alguma informação fora desse método
+			return $result;
+ 
+		} else {
+
+		}
+	}
+
+    public static function formatValueToDecimal($value):float{
+        //Formata em decimal
+		$value = str_replace('.', '', $value);
+		return str_replace(',', '.', $value);
+
+	}
+    
+	public static function setMsgError($msg){
+        
+        //Pega os erros na sessão
+		$_SESSION[Cart::SESSION_ERROR] = $msg;
+
+	}
+
+	public static function getMsgError(){
+
+        //Se estiver definido retorna ele mesmo se não retorna ""
+		$msg = (isset($_SESSION[Cart::SESSION_ERROR])) ? $_SESSION[Cart::SESSION_ERROR] : "";
+
+        //limpa a mensagem de erro
+		Cart::clearMsgError();
+
+        //retorna a variável
+		return $msg;
+	}
+
+	public static function clearMsgError(){
+
+		$_SESSION[Cart::SESSION_ERROR] = NULL;
+
+	}
+
+	public function updateFreight(){
+
+        //Se não for vazio
+		if ($this->getdeszipcode() != '') {
+
+			$this->setFreight($this->getdeszipcode());
+
+		}
+
+	}
+
+    public function getValues(){
+
+		$this->getCalculateTotal();
+
+		return parent::getValues();
+
+	}
+
+	public function getCalculateTotal(){
+
+		$this->updateFreight();
+
+        //recebe todos os valores totais do carrinho
+		$totals = $this->getProductsTotals();
+
+        //Campos que não existem no carrinho
+
+        //coloca no carrinho subtotal
+		$this->setvlsubtotal($totals['vlprice']);
+
+        //coloca no carrinho o total geral
+		$this->setvltotal($totals['vlprice'] + (float)$this->getvlfreight());
+
+	}
+
 
 }
 

@@ -82,10 +82,12 @@ $app->get("/cart", function(){
 	
 	$page = new Page();
 
+	//var_dump($cart); exit;
 	//passa as informações para o template
 	$page->setTpl("cart", [
 		'cart'=>$cart->getValues(),
-		'products'=>$cart->getProducts()
+		'products'=>$cart->getProducts(),
+		'error'=>Cart::getMsgError()
 	]);
 });
 
@@ -146,6 +148,20 @@ $app->get("/cart/:idproduct/remove", function($idproduct){
 
 	//adiciona o produto no carrinho
 	$cart->removeProduct($product, true);
+
+	header("Location: /cart");
+	exit;
+
+});
+
+//calculo do frete
+$app->post("/cart/freight", function(){
+
+	//Pega o carrinho da sessão
+	$cart = Cart::getFromSession();
+
+	//Manda o cep por post
+	$cart->setFreight($_POST['zipcode']);
 
 	header("Location: /cart");
 	exit;
