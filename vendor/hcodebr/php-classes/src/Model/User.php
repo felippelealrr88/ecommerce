@@ -11,6 +11,9 @@ class User extends Model{
         const SESSION = "User";
         const SECRET = "HcodePhp7_Secret";
         const SECRET_IV = "HcodePhp7_Secret_IV";
+        const ERROR = "UserError";
+	    const ERROR_REGISTER = "UserErrorRegister";
+	    const SUCCESS = "UserSucesss";
 
         protected $fields = [
             "iduser", "idperson", "deslogin", "despassword", "inadmin", "dtergister"
@@ -34,35 +37,35 @@ class User extends Model{
     
     //verifica o login
     public static function checkLogin($inadmin = true){
-            if (
-                !isset($_SESSION[User::SESSION]) //Se a sessão não existe OU
-			    || 
-			    !$_SESSION[User::SESSION] //Se está vazio OU
-			    ||
-			    !(int)$_SESSION[User::SESSION]["iduser"] > 0 //se id > 0
-            ) {
-                //Não está logado
-                return false;
 
-            }else{
-                //Se está logado cai no else
-                //Verifica se é um admin (Se o usuário tenta acessar uma rota do admin)
-                if($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true){
+		if (
+			!isset($_SESSION[User::SESSION]) //Se a sessão não está definida
+			||
+			!$_SESSION[User::SESSION] //Definida mas vazia
+			||
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0 //iduser !> 0
+		) {
+			//Não está logado
+			return false;
 
-                    return true;
-                }
-                // Ele tá logado mas não é admin
-                else if($inadmin === false){
-                    //pode entrar
-                    return true;
-                }
-                //Se algo for diferente disso não está logado
-                else{
-                    return false;
+		} else {
 
-                }
-            }
-    }
+            //É usuário da administração? E o a rota é da administrção?
+			if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
+
+				return true;
+            
+            //A rota não é da administração
+			} else if ($inadmin === false) {
+
+				return true;
+
+			} else {
+                //Não tá logado
+				return false;
+			}
+		}
+	}
 
     public static function login($login, $password):User{
         
@@ -83,6 +86,9 @@ class User extends Model{
     if(password_verify($password, $data["despassword"])){
         
         $user = new User();
+
+        $data['desperson'] = utf8_encode($data['desperson']);
+
         //chama o setData de Model
         $user->setData($data);
 
@@ -95,20 +101,24 @@ class User extends Model{
         throw new \Exception(" Usuário ou Senha incorretos! ");
 
     }    
-        
-
     } 
     
 //===============================================================================================
 
     public static function verifyLogin($inadmin = true){
-        //se não está ativa vai para admin/login
-        if (User::checkLogin($inadmin)) {
-			
-			header("Location: /admin/login");
-			exit;
-		}
-    }
+
+        if (!User::checkLogin($inadmin)) {
+
+            if ($inadmin) {
+                header("Location: /admin/login");
+            } else {
+                header("Location: /login");
+            }
+            exit;
+
+        }
+
+}
 
 //================================================================================================
 
@@ -141,7 +151,7 @@ class User extends Model{
 
 		$data = $results[0];
 
-		//$data['desperson'] = utf8_encode($data['desperson']);
+		$data['desperson'] = utf8_encode($data['desperson']);
 
         //seta o primeiro registro no objeto    
 		$this->setData($data);
@@ -154,9 +164,9 @@ class User extends Model{
         
         $sql = new Sql();
         $results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)",array(
-            ":desperson"=>$this->getdesperson(),
+            ":desperson"=>utf8_decode($this->getdesperson()),
             ":deslogin"=>$this->getdeslogin(),
-            ":despassword"=>$this->getdespassword(),
+            ":despassword"=>User::getPasswordHash($this->getdespassword()),
             ":desemail"=>$this->getdesemail(),
             ":nrphone"=>$this->getnrphone(),
             ":inadmin"=>$this->getinadmin()
@@ -174,9 +184,9 @@ class User extends Model{
         $sql = new Sql();
         $results = $sql->select("CALL sp_usersupdate_save( :iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)",array(
             ":iduser"=>$this->getiduser(),
-            ":desperson"=>$this->getdesperson(),
+            ":desperson"=>utf8_decode($this->getdesperson()),
             ":deslogin"=>$this->getdeslogin(),
-            ":despassword"=>$this->getdespassword(),
+            ":despassword"=>User::getPasswordHash($this->getdespassword()),
             ":desemail"=>$this->getdesemail(),
             ":nrphone"=>$this->getnrphone(),
             ":inadmin"=>$this->getinadmin()
@@ -303,8 +313,41 @@ class User extends Model{
             ":iduser"=>$this->getiduser()
         ));
     }
+//=======================================================================================
 
+    public static function setError($msg){
 
+        //Recebe a msg e coloca dentro de uma sessão
+		$_SESSION[User::ERROR] = $msg;
+
+	}
+
+	public static function getError(){
+
+        //Pega o erro da sessão
+        //verifica se está definido, Se não é vazio e retorna a msg de erro
+		$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+
+		User::clearError();
+
+		return $msg;
+	}
+
+	public static function clearError(){
+
+        //Limpa o erro
+		$_SESSION[User::ERROR] = NULL;
+
+	}
+//==========================================================================================
+
+public static function getPasswordHash($password){
+
+		return password_hash($password, PASSWORD_DEFAULT, [
+			'cost'=>12
+		]);
+
+	}
 }
 
 ?>
