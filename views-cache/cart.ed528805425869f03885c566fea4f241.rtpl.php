@@ -22,13 +22,10 @@
                         <form action="/checkout">
                             
                             <?php if( $error != '' ){ ?>
-
                             <div class="alert alert-danger" role="alert">
                             <?php echo htmlspecialchars( $error, ENT_COMPAT, 'UTF-8', FALSE ); ?>
-
                             </div>
                             <?php } ?>
-
 
                             <table cellspacing="0" class="shop_table cart">
                                 <thead>
@@ -43,7 +40,6 @@
                                 </thead>
                                 <tbody>
                                     <?php $counter1=-1;  if( isset($products) && ( is_array($products) || $products instanceof Traversable ) && sizeof($products) ) foreach( $products as $key1 => $value1 ){ $counter1++; ?>
-
                                     <tr class="cart_item">
                                         <td class="product-remove">
                                             <a title="Remover esse item" class="remove" href="/cart/<?php echo htmlspecialchars( $value1["idproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?>/remove">×</a> 
@@ -74,7 +70,6 @@
                                         </td>
                                     </tr>
                                     <?php } ?>
-
                                 </tbody>
                             </table>
 
@@ -107,7 +102,6 @@
                                                 <th>Frete</th>
                                                 <td>
                                                     R$ <?php echo formatPrice($cart["vlfreight"]); ?> <?php if( $cart["nrdays"] > 0 ){ ?><small>prazo de <?php echo htmlspecialchars( $cart["nrdays"], ENT_COMPAT, 'UTF-8', FALSE ); ?> dia(s)</small><?php } ?>
-
                                                 </td>
                                             </tr>
 
