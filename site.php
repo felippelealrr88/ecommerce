@@ -337,14 +337,14 @@ $app->post("/forgot/reset", function(){
 
 	//Descriptografa o codigo
 	$forgot = User::validForgotDecrypt($_POST["code"]);	
-	
+
 	//Verifica recuperação já usada
 	User::setForgotUsed($forgot["idrecovery"]);
 	
 	$user = new User();
 	
 	//carrega os dados do usuário convertendo
-	$user->get((int)$forgot["iduser"]);
+	$user->getUser((int)$forgot["iduser"]);
 	
 	$password = User::getPasswordHash($_POST["password"]);
 	

@@ -102,7 +102,7 @@ $app->post("/admin/forgot/reset", function(){
 
 	$user = new User();
 	//carrega os dados do usuário convertendo
-	$user->get((int)$forgot["iduser"]);
+	$user->getUser((int)$forgot["iduser"]);
 
 	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
 		"cost"=>12
