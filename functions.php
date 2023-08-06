@@ -5,7 +5,7 @@ use \Hcode\Model\Cart;
 
 function formatPrice($vlprice)
 {
-
+	//Se o preço for vazio
 	if (!$vlprice > 0) $vlprice = 0;
 
 	return number_format($vlprice, 2, ",", ".");

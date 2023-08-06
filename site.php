@@ -170,6 +170,7 @@ $app->post("/cart/freight", function(){
 
 });
 
+
 $app->get("/checkout", function(){
 	
 	//Verifica se já está logado ou cadastrado
@@ -290,5 +291,70 @@ $app->post("/register", function(){
 	exit;
 
 });
+
+$app->get("/forgot", function(){
+
+	$page = new Page();
+
+	$page->setTpl("forgot");
+});
+
+$app->post("/forgot", function(){
+
+	//Passa false para o inadmin
+	$user = User::getForgot($_POST["email"], false);
+
+	header("Location:/forgot/sent");
+	exit;
+
+});
+
+//ENVIADO
+$app->get("/forgot/sent", function(){
+
+	$page = new Page();
+
+	$page->setTpl("forgot-sent");
+
+});
+
+$app->get("/forgot/reset", function(){
+	//Identificação do usuário
+	$user = User::validForgotDecrypt($_GET["code"]);
+
+	$page = new Page();
+
+	//passa um array para o template
+	$page->setTpl("forgot-reset", array(
+		"name"=>$user["desperson"],
+		"code"=>$_GET["code"]
+	));
+
+});
+
+//Seta que o código foi usado
+$app->post("/forgot/reset", function(){
+
+	//Descriptografa o codigo
+	$forgot = User::validForgotDecrypt($_POST["code"]);	
+	
+	//Verifica recuperação já usada
+	User::setForgotUsed($forgot["idrecovery"]);
+	
+	$user = new User();
+	
+	//carrega os dados do usuário convertendo
+	$user->get((int)$forgot["iduser"]);
+	
+	$password = User::getPasswordHash($_POST["password"]);
+	
+	//seta a nova senha informada no banco (hash)
+	$user->setPassword($password);
+	
+	$page = new Page();
+	
+	$page->setTpl("forgot-reset-success");
+	
+	});
 
 ?>
