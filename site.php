@@ -333,7 +333,8 @@ $app->get("/forgot/reset", function(){
 });
 
 //Seta que o código foi usado
-$app->post("/forgot/reset", function(){
+$app->post("/forgot/reset", function()
+{
 
 	//Descriptografa o codigo
 	$forgot = User::validForgotDecrypt($_POST["code"]);	
@@ -355,6 +356,79 @@ $app->post("/forgot/reset", function(){
 	
 	$page->setTpl("forgot-reset-success");
 	
-	});
+});
+
+$app->get("/profile", function()
+{
+
+	//Força o login não admin
+	User::verifyLogin(false);
+	
+	//Pega o usuário da sessão
+	$user = User::getFromSession();
+	
+	$page = new Page();
+	
+	//Passa os dados para o template 'profile'
+	$page->setTpl("profile", [
+			'user'=>$user->getValues(),
+			'profileMsg'=>User::getSuccess(),
+			'profileError'=>User::getError()
+	]);
+	
+});
+	
+$app->post("/profile", function(){
+
+	//Força o login não admin
+	User::verifyLogin(false);
+
+	//Validações de erros
+
+	if (!isset($_POST['desperson']) || $_POST['desperson'] === '') {
+		User::setError("Preencha o seu nome.");
+		header('Location: /profile');
+		exit;
+	}
+
+	if (!isset($_POST['desemail']) || $_POST['desemail'] === '') {
+		User::setError("Preencha o seu e-mail.");
+		header('Location: /profile');
+		exit;
+	}
+
+	//Pega o usuário da Sessão
+	$user = User::getFromSession();
+
+	//Se ele alterou o email
+	if ($_POST['desemail'] !== $user->getdesemail()) {
+
+		//Verifica se o email está sendo usado
+		if (User::checkLoginExist($_POST['desemail']) === true) {
+
+			User::setError("Este endereço de e-mail já está cadastrado.");
+			header('Location: /profile');
+			exit;
+
+		}
+
+	}
+
+	//Ignora o que o formulário está enviando e pega no banco
+	//Sobrescreve com os dados já presentes no Objeto
+	$_POST['inadmin'] = $user->getinadmin();
+	$_POST['despassword'] = $user->getdespassword();
+	$_POST['deslogin'] = $_POST['desemail'];
+
+	$user->setData($_POST);
+
+	$user->save();
+
+	User::setSuccess("Dados alterados com sucesso!");
+
+	header('Location: /profile');
+	exit;
+
+});	
 
 ?>
