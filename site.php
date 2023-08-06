@@ -194,7 +194,9 @@ $app->get("/login", function(){
 	$page = new Page();
 
 	$page->setTpl("login", [
-		'error'=>User::getError()
+		'error'=>User::getError(),
+		'errorRegister'=>User::getErrorRegister(),
+		'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
 	]);
 
 });
@@ -220,6 +222,69 @@ $app->post("/login", function(){
 $app->get("/logout", function() {
 
 	User::logout();
+
+	header("Location: /checkout");
+	exit;
+
+});
+
+$app->post("/register", function(){
+
+	//Recebe os dados já preenchidos no formulário para que não apaguem em caso de erro
+	$_SESSION['registerValues'] = $_POST;
+
+	//Valida os campos, se estão setados ou não vazios
+	
+	if (!isset($_POST['name']) || $_POST['name'] == '') {
+
+		User::setErrorRegister("Preencha o seu nome.");
+		header("Location: /login");
+		exit;
+
+	}
+ 
+	if (!isset($_POST['email']) || $_POST['email'] == '') {
+
+		User::setErrorRegister("Preencha o seu e-mail.");
+		header("Location: /login");
+		exit;
+
+	}
+
+	if (!isset($_POST['password']) || $_POST['password'] == '') {
+
+		User::setErrorRegister("Preencha a senha.");
+		header("Location: /login");
+		exit;
+
+	}
+
+	//Verifica se o usuário informado já existe
+	if (User::checkLoginExist($_POST['email']) === true) {
+
+		User::setErrorRegister("Este endereço de e-mail já está sendo usado por outro usuário.");
+		header("Location: /login");
+		exit;
+
+	}
+	
+	$user = new User();
+
+	//Recebe os dados para criar um usuário
+	//Passa um array pq os nomes dos campos são diferentes
+	$user->setData([
+		'inadmin'=>0,
+		'deslogin'=>$_POST['email'],
+		'desperson'=>$_POST['name'],
+		'desemail'=>$_POST['email'],
+		'despassword'=>$_POST['password'],
+		'nrphone'=>$_POST['phone']
+	]);
+
+	$user->save();
+
+	//Loga o usuario para ele visualizar o checkout
+	User::login($_POST['email'], $_POST['password']);
 
 	header("Location: /checkout");
 	exit;
