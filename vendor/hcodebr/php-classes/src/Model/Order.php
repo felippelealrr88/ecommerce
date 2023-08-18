@@ -11,7 +11,7 @@ class Order extends Model {
 	const SUCCESS = "Order-Success";
 	const ERROR = "Order-Error";
 
-	public function save()
+	public function saveOrder()
 	{
 
 		$sql = new Sql();
@@ -31,7 +31,7 @@ class Order extends Model {
 
 	}
 
-	public function get($idorder)
+	public function getOrder($idorder)
 	{
 
 		$sql = new Sql();
