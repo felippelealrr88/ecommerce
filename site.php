@@ -514,79 +514,81 @@ $app->post("/forgot/reset", function()
 });
 
 //Cria o perfil do usuário ===================================================================
-$app->get("/profile", function()
-{
+$app->get("/profile", function(){
 
-	//Força o login não admin
-	User::verifyLogin(false);
-	
-	//Pega o usuário da sessão
-	$user = User::getFromSession();
-	
-	$page = new Page();
-	
-	//Passa os dados para o template 'profile'
-	$page->setTpl("profile", [
-			'user'=>$user->getValues(),
-			'profileMsg'=>User::getSuccess(),
-			'profileError'=>User::getError()
-	]);
-	
-});
+    // Verifica se o usuário está logado
+    User::verifyLogin(false);
 
-$app->post("/profile", function()
-{
+    // Obtém o usuário da sessão
+    $user = User::getFromSession();
 
-	//Força o login não admin
-	User::verifyLogin(false);
+    $page = new Page();
 
-	//Validações de erros
-
-	if (!isset($_POST['desperson']) || $_POST['desperson'] === '') {
-		User::setError("Preencha o seu nome.");
-		header('Location: /profile');
-		exit;
-	}
-
-	if (!isset($_POST['desemail']) || $_POST['desemail'] === '') {
-		User::setError("Preencha o seu e-mail.");
-		header('Location: /profile');
-		exit;
-	}
-
-	//Pega o usuário da Sessão
-	$user = User::getFromSession();
-
-	//Se ele alterou o email
-	if ($_POST['desemail'] !== $user->getdesemail()) {
-
-		//Verifica se o email está sendo usado
-		if (User::checkLoginExist($_POST['desemail']) === true) {
-
-			User::setError("Este endereço de e-mail já está cadastrado.");
-			header('Location: /profile');
-			exit;
-
-		}
-
-	}
-
-	//Ignora o que o formulário está enviando e pega no banco
-	//Sobrescreve com os dados já presentes no Objeto
-	$_POST['inadmin'] = $user->getinadmin();
-	$_POST['despassword'] = $user->getdespassword();
-	$_POST['deslogin'] = $_POST['desemail'];
-
-	$user->setData($_POST);
-
-	$user->save();
-
-	User::setSuccess("Dados alterados com sucesso!");
-
-	header('Location: /profile');
-	exit;
+    // Define o modelo da página e passa informações pra o template
+    $page->setTpl("profile", [
+        'user'=>$user->getValues(),
+        'profileMsg'=>User::getSuccess(),
+        'profileError'=>User::getError()
+    ]);
 
 });
+
+// Rota POST para atualização de dados do perfil
+$app->post("/profile", function(){
+
+    // Verifica se o usuário tá logado
+    User::verifyLogin(false);
+
+    // Verifica se o campo 'desperson' não está vazio
+    if (!isset($_POST['desperson']) || $_POST['desperson'] === '') {
+        User::setError("Preencha o seu nome.");
+        header('Location: /profile');
+        exit;
+    }
+
+    // Verifica se o campo 'desemail' não está vazio
+    if (!isset($_POST['desemail']) || $_POST['desemail'] === '') {
+        User::setError("Preencha o seu e-mail.");
+        header('Location: /profile');
+        exit;
+    }
+
+    // carrega o usuário atual da sessão
+    $user = User::getFromSession();
+
+    // Verifica se o novo e-mail é diferente do e-mail atual do usuário
+    if ($_POST['desemail'] !== $user->getdesemail()) {
+
+        // Verifica se o novo e-mail já existe em outros registros
+        if (User::checkLoginExist($_POST['desemail']) === true) {
+            User::setError("Este endereço de e-mail já está cadastrado.");
+            header('Location: /profile');
+            exit;
+        }
+
+    }
+
+    // Define algumas informações para atualização
+    $_POST['inadmin'] = $user->getinadmin();
+    $_POST['despassword'] = $user->getdespassword();
+    $_POST['deslogin'] = $_POST['desemail'];
+
+    // Define os dados do usuário com os novos dados do formulário
+    $user->setData($_POST);
+
+    // Salva as informações atualizadas do usuário no banco de dados
+    $user->save();
+
+    // Define uma mensagem de sucesso
+    User::setSuccess("Dados alterados com sucesso!");
+
+    // Redireciona de volta à página de perfil
+    header('Location: /profile');
+    exit;
+
+});
+
+
 
 //Pedidos ==================================================================================
 $app->get("/order/:idorder", function($idorder)
@@ -730,6 +732,66 @@ $app->get("/profile/orders/:idorder", function($idorder){
         'cart' => $cart->getValues(),
         'products' => $cart->getProducts()
     ]);	
+});
+
+// Mudança de senha ===============================
+$app->get("/profile/change-password", function(){
+
+    // Verifica se o usuário está logado
+    User::verifyLogin(false);
+
+    $page = new Page();
+
+    //Passa as informações para o template
+    $page->setTpl("profile-change-password", [
+        'changePassError'=>User::getError(),
+        'changePassSuccess'=>User::getSuccess()
+    ]);
+
+});
+
+// Rota POST para a mudança de senha
+$app->post("/profile/change-password", function(){
+
+    // Verifica se o usuário está logado
+    User::verifyLogin(false);
+
+    // Verifica se o campo 'current_pass' não está vazio
+    if (!isset($_POST['current_pass']) || $_POST['current_pass'] === '') {
+
+        // Define uma mensagem de erro e redireciona de volta à página de mudança de senha
+        User::setError("Digite a senha atual.");
+        header("Location: /profile/change-password");
+        exit;
+
+    }
+
+    // Carregao usuário da sessão
+    $user = User::getFromSession();
+
+    // Verifica se a senha atual fornecida corresponde à senha armazenada no banco de dados
+    if (!password_verify($_POST['current_pass'], $user->getdespassword())) {
+
+        // Define uma mensagem de erro e redireciona de volta à página de mudança de senha
+        User::setError("A senha está inválida.");
+        header("Location: /profile/change-password");
+        exit;
+
+    }
+
+    // Define a nova senha para o usuário
+    $user->setdespassword($_POST['new_pass']);
+
+    // Atualiza os dados do usuário no banco de dados
+    $user->update();
+
+    // Define uma mensagem de sucesso
+    User::setSuccess("Senha alterada com sucesso.");
+
+    // Redireciona de volta à página de mudança de senha
+    header("Location: /profile/change-password");
+    exit;
+
 });
 
 

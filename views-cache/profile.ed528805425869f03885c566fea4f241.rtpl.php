@@ -39,15 +39,15 @@
                 <form method="post" action="/profile">
                     <div class="form-group">
                     <label for="desperson">Nome completo</label>
-                    <input type="text" class="form-control" id="desperson" name="desperson" placeholder="Digite o nome aqui" value="{user.desperson}">
+                    <input type="text" class="form-control" id="desperson" name="desperson" placeholder="Digite o nome aqui" value="<?php echo htmlspecialchars( $user["desperson"], ENT_COMPAT, 'UTF-8', FALSE ); ?>">
                     </div>
                     <div class="form-group">
                     <label for="desemail">E-mail</label>
-                    <input type="email" class="form-control" id="desemail" name="desemail" placeholder="Digite o e-mail aqui" value="{user.desemail}">
+                    <input type="email" class="form-control" id="desemail" name="desemail" placeholder="Digite o e-mail aqui" value="<?php echo htmlspecialchars( $user["desemail"], ENT_COMPAT, 'UTF-8', FALSE ); ?>">
                     </div>
                     <div class="form-group">
                     <label for="nrphone">Telefone</label>
-                    <input type="tel" class="form-control" id="nrphone" name="nrphone" placeholder="Digite o telefone aqui" value="{user.nrphone}">
+                    <input type="tel" class="form-control" id="nrphone" name="nrphone" placeholder="Digite o telefone aqui" value="<?php echo htmlspecialchars( $user["nrphone"], ENT_COMPAT, 'UTF-8', FALSE ); ?>">
                     </div>
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </form>
