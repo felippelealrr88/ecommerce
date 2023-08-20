@@ -28,7 +28,7 @@ function checkLogin($inadmin = true)
 
 function getUserName()
 {
-
+	//Pega o usuário da sessão
 	$user = User::getFromSession();
 
 	return $user->getdesperson();
@@ -37,9 +37,10 @@ function getUserName()
 
 function getCartNrQtd()
 {
-
+	//pega o carrinho da sessão
 	$cart = Cart::getFromSession();
 
+	//Pega o total dos produtos
 	$totals = $cart->getProductsTotals();
 
 	return $totals['nrqtd'];
@@ -48,11 +49,13 @@ function getCartNrQtd()
 
 function getCartVlSubTotal()
 {
-
+	//Pega o carrinho da sessão
 	$cart = Cart::getFromSession();
 
+	//Pega o total
 	$totals = $cart->getProductsTotals();
 
+	//Passa os valores formatados
 	return formatPrice($totals['vlprice']);
 
 }

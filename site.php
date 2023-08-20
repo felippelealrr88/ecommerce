@@ -685,4 +685,52 @@ $app->get("/boleto/:idorder", function($idorder)
 
 });
 
+//Meus pedidos ===========================================================
+$app->get("/profile/orders", function()
+{
+	//Verifica se está logado
+	User::verifyLogin(false);
+
+	//pega o usuário da sessão
+	$user = User::getFromSession();
+
+	$page = new Page();
+
+	//Passa os dados para o template
+	$page->setTpl("profile-orders", [
+		'orders'=>$user->getOrders()
+	]);
+
+});
+
+//Detalhes do pedido pelo id
+$app->get("/profile/orders/:idorder", function($idorder){
+    
+    // Verifica se tá logado
+    User::verifyLogin(false);
+
+    $order = new Order();
+
+    // Recebe um pedido específico com base no id
+    $order->getOrder((int)$idorder);
+
+    $cart = new Cart();
+
+    // Obtém informações sobre o carrinho associado ao pedido.
+    $cart->get((int)$order->getidcart());
+
+    // Calcula o total do carrinho.
+    $cart->getCalculateTotal();
+	
+    $page = new Page();
+
+    // Define o modelo da página para renderizar a página 'profile-orders-detail' e passa dados para a renderização.
+    $page->setTpl("profile-orders-detail", [
+        'order' => $order->getValues(),
+        'cart' => $cart->getValues(),
+        'products' => $cart->getProducts()
+    ]);	
+});
+
+
 ?>
