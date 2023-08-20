@@ -260,6 +260,7 @@ desired effect
         <li><a href="/admin/categories"><i class="fa fa-link"></i> <span>Categorias</span></a></li>
         <li><a href="/admin/products"><i class="fa fa-link"></i> <span>Produtos</span></a></li>
         <li><a href="/admin/orders"><i class="fa fa-shopping-cart"></i> <span>Pedidos</span></a></li>
+        <li><a href="/admin/logout"><i class="fa fa-close"></i> <span>Sair</span></a></li>
 
         
       </ul>

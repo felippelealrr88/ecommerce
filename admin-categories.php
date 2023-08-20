@@ -4,22 +4,52 @@ use \Hcode\Model\Category;
 use Hcode\Model\Product;
 use \Hcode\Model\User;
 
-$app->get("/admin/categories", function(){
+//Principal de categorias
+$app->get("/admin/categories", function()
+{
 
-	User::verifyLogin();
+	// Verifica o login do usuário
+    User::verifyLogin(); 
 
-	$categories = Category::listAll();
-	
-	$page = new PageAdmin();
+	//Valida os campos search e page
+    $search = (isset($_GET['search'])) ? $_GET['search'] : ""; // Obtém o termo de pesquisa (se houver).
+    $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1; // Obtém o número da página atual.
 
-	//passa um array de categorias para o template
-	$page->setTpl("categories",[
-		"categories"=>$categories
-	]);
+    if ($search != '') {
+        // Se houver um termo de pesquisa, obtém a página de categorias com base na pesquisa.
+        $pagination = Category::getPageSearch($search, $page);
+    } else {
+        // Caso contrário, obtém a página de categorias sem pesquisa.
+        $pagination = Category::getPage($page);
+    }
 
+    $pages = [];
+
+    // Gera links para as páginas da lista de categorias.
+    for ($x = 0; $x < $pagination['pages']; $x++)
+    {
+        array_push($pages, [
+            'href'=>'/admin/categories?'.http_build_query([
+                'page'=>$x+1,
+                'search'=>$search
+            ]),
+            'text'=>$x+1
+        ]);
+    }
+
+    $page = new PageAdmin();
+
+    // Passa os dados para o template
+    $page->setTpl("categories", [
+        "categories"=>$pagination['data'], // Categorias da página atual.
+        "search"=>$search, // Termo de pesquisa.
+        "pages"=>$pages // Links para as páginas.
+    ]);
 });
 
-$app->get("/admin/categories/create", function(){
+//Cria nova categoria ====================================
+$app->get("/admin/categories/create", function()
+{
 
 	User::verifyLogin();
 
@@ -43,7 +73,9 @@ $app->post("/admin/categories/create", function(){
 	exit;
 });
 
-$app->get("/admin/categories/:idcategory/delete", function($idcategory){
+// Deleta uma categoria ==========================================================
+$app->get("/admin/categories/:idcategory/delete", function($idcategory)
+{
 
 	User::verifyLogin();
 
@@ -58,6 +90,7 @@ $app->get("/admin/categories/:idcategory/delete", function($idcategory){
 	exit;
 });
 
+//Detalhes da categoria ===================================================
 $app->get("/admin/categories/:idcategory", function($idcategory){
 
 	User::verifyLogin();
@@ -75,7 +108,8 @@ $app->get("/admin/categories/:idcategory", function($idcategory){
 	));
 });
 
-$app->post("/admin/categories/:idcategory", function($idcategory){
+$app->post("/admin/categories/:idcategory", function($idcategory)
+{
 
 	User::verifyLogin();
 
@@ -94,8 +128,9 @@ $app->post("/admin/categories/:idcategory", function($idcategory){
 
 });
 
-
-$app->get("/admin/categories/:idcategory/products", function($idcategory){
+// Produtos por categoria =========================================================
+$app->get("/admin/categories/:idcategory/products", function($idcategory)
+{
 
 	User::verifyLogin();
 
@@ -115,7 +150,9 @@ $app->get("/admin/categories/:idcategory/products", function($idcategory){
 
 });
 
-$app->get("/admin/categories/:idcategory/products/:idproduct/add", function($idcategory, $idproduct){
+//Adicionar produto a categoria =========================================================
+$app->get("/admin/categories/:idcategory/products/:idproduct/add", function($idcategory, $idproduct)
+{
 
 	User::verifyLogin();
 
@@ -135,7 +172,9 @@ $app->get("/admin/categories/:idcategory/products/:idproduct/add", function($idc
 
 });
 
-$app->get("/admin/categories/:idcategory/products/:idproduct/remove", function($idcategory, $idproduct){
+//Remove um produto da categoria ========================================
+$app->get("/admin/categories/:idcategory/products/:idproduct/remove", function($idcategory, $idproduct)
+{
 
 	User::verifyLogin();
 

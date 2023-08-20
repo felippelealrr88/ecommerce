@@ -170,6 +170,64 @@ public function getCategories(){
     ]);
 }
 
+public static function getPage($page = 1, $itemsPerPage = 5)
+{
+    // Calcula o índice do primeiro item na página atual.
+    $start = ($page - 1) * $itemsPerPage;
+
+    // Cria uma nova instância da classe Sql.
+    $sql = new Sql();
+
+    // Executa uma consulta SQL para buscar todos os produtos com paginação.
+    $results = $sql->select("
+        SELECT SQL_CALC_FOUND_ROWS *
+        FROM tb_products 
+        ORDER BY desproduct
+        LIMIT $start, $itemsPerPage;
+    ");
+
+    // Executa uma consulta SQL para obter o número total de resultados (para fins de paginação).
+    $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+    // Retorna um array contendo os dados da página atual, o total de resultados e o número de páginas.
+    return [
+        'data' => $results, // Dados da página atual.
+        'total' => (int)$resultTotal[0]["nrtotal"], // Total de resultados encontrados.
+        'pages' => ceil($resultTotal[0]["nrtotal"] / $itemsPerPage) // Número total de páginas.
+    ];
+}
+
+public static function getPageSearch($search, $page = 1, $itemsPerPage = 5)
+{
+    // Calcula o índice do primeiro item na página atual.
+    $start = ($page - 1) * $itemsPerPage;
+
+    // Cria uma nova instância da classe Sql.
+    $sql = new Sql();
+
+    // Executa uma consulta SQL para buscar os produtos com base em uma pesquisa, com paginação.
+    $results = $sql->select("
+        SELECT SQL_CALC_FOUND_ROWS *
+        FROM tb_products 
+        WHERE desproduct LIKE :search
+        ORDER BY desproduct
+        LIMIT $start, $itemsPerPage;
+    ", [
+        ':search' => '%' . $search . '%' // Parâmetro de pesquisa (com % para corresponder parcialmente).
+    ]);
+
+    // Executa uma consulta SQL para obter o número total de resultados (para fins de paginação).
+    $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+    // Retorna um array contendo os dados da página atual, o total de resultados e o número de páginas.
+    return [
+        'data' => $results, // Dados da página atual.
+        'total' => (int)$resultTotal[0]["nrtotal"], // Total de resultados encontrados.
+        'pages' => ceil($resultTotal[0]["nrtotal"] / $itemsPerPage) // Número total de páginas.
+    ];
+}
+
+
 
 }
 
