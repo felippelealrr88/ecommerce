@@ -315,7 +315,7 @@ $app->post("/checkout", function(){
 	]);
 
 	$order->saveOrder();
-	//var_dump($order->getidorder()); exit;
+
 
 	switch ((int)$_POST['payment-method']) {
 
@@ -328,7 +328,6 @@ $app->post("/checkout", function(){
 		break;
 
 	}
-	
 
 	exit;
 
@@ -524,12 +523,14 @@ $app->get("/profile", function(){
 
     $page = new Page();
 
+	//var_dump($user->getValues()); exit;
     // Define o modelo da página e passa informações pra o template
     $page->setTpl("profile", [
         'user'=>$user->getValues(),
         'profileMsg'=>User::getSuccess(),
         'profileError'=>User::getError()
     ]);
+	
 
 });
 
@@ -706,7 +707,8 @@ $app->get("/profile/orders", function()
 });
 
 //Detalhes do pedido pelo id
-$app->get("/profile/orders/:idorder", function($idorder){
+$app->get("/profile/orders/:idorder", function($idorder)
+{
     
     // Verifica se tá logado
     User::verifyLogin(false);
@@ -719,7 +721,7 @@ $app->get("/profile/orders/:idorder", function($idorder){
     $cart = new Cart();
 
     // Obtém informações sobre o carrinho associado ao pedido.
-    $cart->get((int)$order->getidcart());
+    $cart->getCart((int)$order->getidcart());
 
     // Calcula o total do carrinho.
     $cart->getCalculateTotal();
@@ -735,7 +737,8 @@ $app->get("/profile/orders/:idorder", function($idorder){
 });
 
 // Mudança de senha ===============================
-$app->get("/profile/change-password", function(){
+$app->get("/profile/change-password", function()
+{
 
     // Verifica se o usuário está logado
     User::verifyLogin(false);
@@ -751,7 +754,8 @@ $app->get("/profile/change-password", function(){
 });
 
 // Rota POST para a mudança de senha
-$app->post("/profile/change-password", function(){
+$app->post("/profile/change-password", function()
+{
 
     // Verifica se o usuário está logado
     User::verifyLogin(false);
@@ -794,5 +798,85 @@ $app->post("/profile/change-password", function(){
 
 });
 
+//Integração PagSeguro e Paypal ===========================================
+$app->get("/order/:idorder/pagseguro", function($idorder)
+{
+
+	//Verifica se o usuario está logado
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	//Carrega o pedido pelo id
+	$order->getOrder((int)$idorder);
+
+	//Carrega o carrinho do pedido
+	$cart = $order->getCart();
+
+	$page = new Page([
+		'header'=>false,
+		'footer'=>false
+	]);
+
+	//Passa os dados para o template
+	$page->setTpl("payment-pagseguro", [
+		'order'=>$order->getValues(),
+		'cart'=>$cart->getValues(),
+		'products'=>$cart->getProducts(),
+		'phone'=>[
+			'areaCode'=>substr($order->getnrphone(), 0, 2),
+			'number'=>substr($order->getnrphone(), 2, strlen($order->getnrphone()))
+		]
+	]);
+
+
+});
+
+$app->get("/order/:idorder/paypal", function($idorder)
+{
+	//Verifica se o usuario tá logado
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	//Carrega o pedido pelo id
+	$order->getOrder((int)$idorder);
+
+	//Carrega o carrinho do pedido
+	$cart = $order->getCart();
+
+	$page = new Page([
+		'header'=>false,
+		'footer'=>false
+	]);
+
+	//Passa os dados para o template
+	$page->setTpl("payment-paypal", [
+		'order'=>$order->getValues(),
+		'cart'=>$cart->getValues(),
+		'products'=>$cart->getProducts()
+	]);
+
+
+});
+
+//Deletar um pedido ==========================================================
+$app->get("/profile/orders/delete/:idorder", function($idorder){
+
+	//Verifica se tá logado
+	User::checkLogin(false);
+
+	$order = new Order();
+
+	//Carrega o pedido pelo id
+	$order->getOrder((int)$idorder);
+
+	$order->delete();
+
+	header("Location: /profile/orders");
+	exit;
+
+
+});
 
 ?>

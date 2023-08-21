@@ -80,7 +80,7 @@ class Address extends Model {
 		if (count($results) > 0) {
 			//Retorna os valores para o Objeto
 			$this->setData($results[0]);
-			var_dump($results[0]);exit;
+			//var_dump($results[0]);exit;
 		}
 
 	}
